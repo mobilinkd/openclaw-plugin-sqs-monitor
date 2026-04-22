@@ -2,7 +2,7 @@
 
 Polls an AWS SQS queue and spawns subagents to process each message.
 
-**Content-agnostic** — this plugin knows nothing about SNS envelopes or message schemas. It reads the `Body` field from each SQS message and passes it to a subagent as plain text. Decode SNS notifications, JSON payloads, or any other format inside the subagent.
+**Content-agnostic** — this plugin knows nothing about SNS envelopes or message schemas. Each SQS message is serialized as a JSON string and passed to a subagent in its entirety. Subagents receive the full message object including `Body`, `MessageId`, `ReceiptHandle`, `Attributes`, and `MessageAttributes`. Parse the JSON to extract what you need.
 
 ## Installation
 
@@ -88,7 +88,7 @@ The plugin uses the AWS SDK default credential chain. Ensure your environment ha
 ## How It Works
 
 1. Polls the SQS queue using [long polling](https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-short-and-long-polling.html) to minimize API calls
-2. For each message, spawns a subagent with the message `Body` as input
+2. For each message, serializes the full SQS `Message` object to JSON and spawns a subagent with it
 3. Deletes the message from the queue after the subagent is successfully spawned
 4. Tracks in-flight messages and pauses polling if `maxInFlight` is exceeded
 5. Emits alerts for hibernate detection, consecutive errors, and queue unreachable conditions
@@ -144,14 +144,16 @@ To process SNS notifications delivered to SQS:
 1. Create an SQS queue
 2. Subscribe the queue to an SNS topic
 3. Set the plugin to poll the SQS queue
-4. Inside your subagent, decode the SNS notification envelope:
+4. The subagent receives the full SQS message as JSON. Parse it to extract the SNS envelope:
 
-```
-Process this SQS message:
-{"Type":"Notification","Message":"{\"text\":\"hello\"}","MessageId":"...","TopicArn":"..."}
-```
 
-The subagent can parse the SNS `Message` JSON field to extract the actual payload.
+```javascript
+const msg = JSON.parse(rawMessage);
+// msg.Body contains the raw SNS notification as a JSON string
+// (e.g. '{"Type":"Notification","Message":"{\"text\":\"hello\"}",...}')
+const sns = JSON.parse(msg.Body);
+// sns.TopicArn, sns.MessageId, sns.Message (the actual payload), etc.
+```
 
 ## License
 
