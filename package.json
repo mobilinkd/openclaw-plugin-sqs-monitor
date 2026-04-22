@@ -1,0 +1,37 @@
+{
+  "name": "@openclaw/sqs-monitor",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Polls an AWS SQS queue and spawns subagents to process messages",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "openclaw.plugin.json"
+  ],
+  "openclaw": {
+    "extensions": [
+      "./dist/index.js"
+    ],
+    "compat": {
+      "minGatewayVersion": "2026.4.0"
+    }
+  },
+  "peerDependencies": {
+    "openclaw": ">=2026.4.0"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  },
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "tsc"
+  }
+}

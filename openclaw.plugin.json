@@ -1,0 +1,74 @@
+{
+  "id": "sqs-monitor",
+  "name": "SQS Monitor",
+  "description": "Polls an AWS SQS queue and spawns subagents to process messages. Content-agnostic — knows nothing about SNS envelopes or message schema.",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "queueUrl": {
+        "type": "string",
+        "description": "Full URL of the SQS queue to monitor."
+      },
+      "region": {
+        "type": "string",
+        "description": "AWS region for SQS (e.g., us-east-1)."
+      },
+      "maxInFlight": {
+        "type": "integer",
+        "minimum": 1,
+        "default": 10,
+        "description": "Maximum messages to have in-flight before pausing spawns."
+      },
+      "waitTimeSeconds": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 20,
+        "default": 20,
+        "description": "Long-poll wait time in seconds."
+      },
+      "visibilityTimeout": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 43200,
+        "default": 60,
+        "description": "Message visibility timeout in seconds."
+      },
+      "pollIntervalMs": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 0,
+        "description": "Fixed poll interval in ms. 0 = continuous long-polling."
+      },
+      "maxPollGapMs": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 300000,
+        "description": "Gap threshold (ms) for polling gap alert. Default: 300000 (5 min)."
+      },
+      "dlqUrl": {
+        "type": "string",
+        "description": "URL of the DLQ for permanently failed messages."
+      },
+      "notifyChannel": {
+        "type": "string",
+        "description": "Notification channel for alerts (e.g., telegram)."
+      },
+      "logLevel": {
+        "type": "string",
+        "enum": ["debug", "info", "warn", "error"],
+        "default": "info",
+        "description": "Log level."
+      },
+      "dryRun": {
+        "type": "boolean",
+        "default": false,
+        "description": "Dry-run mode: log actions without executing."
+      }
+    },
+    "required": ["queueUrl", "region"]
+  },
+  "compat": {
+    "minGatewayVersion": "2026.4.0"
+  }
+}
