@@ -6,13 +6,29 @@ Polls an AWS SQS queue and spawns subagents to process each message.
 
 ## Installation
 
+### ClawHub (recommended)
+
+ClawHub is checked first during plugin install. Authenticate once, then publish:
+
 ```bash
-pnpm add @openclaw/sqs-monitor
+npm i -g clawhub          # install CLI
+clawhub login             # authenticate (needed for publish only)
+clawhub publish . --slug sqs-monitor --name "SQS Monitor" --version 0.1.0
 ```
 
-Or with npm:
+To install into an OpenClaw deployment that already has the CLI:
 
 ```bash
+clawhub install sqs-monitor
+```
+
+### npm (fallback)
+
+If ClawHub doesn't have the package, install via npm:
+
+```bash
+pnpm add @openclaw/sqs-monitor
+# or
 npm install @openclaw/sqs-monitor
 ```
 
@@ -59,12 +75,7 @@ The plugin reads `gateway.remote.token` from your OpenClaw config to authenticat
 }
 ```
 
-Or configure via environment variables only (no `plugins.entries` needed):
-
-```bash
-export SQS_MONITOR_QUEUE_URL="https://sqs.us-east-1.amazonaws.com/123456789/my-queue"
-export AWS_REGION="us-east-1"
-```
+Environment variables take precedence over `plugins.entries` config. A minimal setup can rely entirely on env vars with no `plugins.entries.sqsMonitor` entry.
 
 ## AWS Credentials
 
@@ -91,6 +102,40 @@ The plugin uses the AWS SDK default credential chain. Ensure your environment ha
 | `consecutive_errors` | 5+ consecutive poll errors | No |
 | `queue_unreachable` | Initial connectivity check failed | Yes |
 | `config_error` | Configuration is invalid | Yes |
+
+## ClawHub Publishing
+
+This package is published to [ClawHub](https://clawhub.com). OpenClaw checks ClawHub first during plugin resolution, falling back to npm.
+
+**Prerequisites:**
+- Node.js 18+
+- `npm i -g clawhub`
+- `clawhub login` (must be authenticated)
+
+**Publish a new version:**
+
+```bash
+cd /path/to/openclaw-plugin-sqs-monitor
+
+# Bump version in package.json first, then:
+clawhub publish . \
+  --slug sqs-monitor \
+  --name "SQS Monitor" \
+  --version 0.1.0 \
+  --changelog "Initial release"
+```
+
+**Install locally for testing:**
+
+```bash
+clawhub install ./path/to/openclaw-plugin-sqs-monitor
+```
+
+**Check publish status:**
+
+```bash
+clawhub list
+```
 
 ## Example: SNS → SQS Pipeline
 

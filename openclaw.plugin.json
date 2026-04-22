@@ -67,8 +67,5 @@
       }
     },
     "required": ["queueUrl", "region"]
-  },
-  "compat": {
-    "minGatewayVersion": "2026.4.0"
   }
 }
