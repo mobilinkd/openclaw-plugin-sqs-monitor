@@ -106,9 +106,11 @@ export default definePluginEntry({
             const { createGatewayClient } = await import("./gateway.js");
             const gatewayClient = createGatewayClient({ gatewayPort, gatewayToken });
 
-            const body = message.Body ?? "";
+            // Pass the raw SQS message as a JSON string so subagents can access
+            // message body, attributes, and metadata. Subagents should parse JSON.
+            const rawMessage = JSON.stringify(message);
             await gatewayClient.spawnAgent({
-              message: `Process this SQS message:\n${body}`,
+              message: rawMessage,
               deliver: false,
               lane: "subagent",
             });
