@@ -66,6 +66,6 @@
         "description": "Dry-run mode: log actions without executing."
       }
     },
-    "required": ["queueUrl", "region"]
+    "required": []
   }
 }
