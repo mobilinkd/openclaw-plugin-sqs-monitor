@@ -6,6 +6,7 @@
  * it as a devDependency / type-time reference.
  */
 
+import { randomUUID } from "node:crypto";
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk/plugin-entry";
 import type { SqsMonitorConfig } from "./config.js";
@@ -133,9 +134,15 @@ export default definePluginEntry({
             // Pass the raw SQS message as a JSON string so subagents can access
             // message body, attributes, and metadata. Subagents should parse JSON.
             const rawMessage = JSON.stringify(message);
+            // Spawn a new subagent session for this SQS message.
+            // Use agent:main:internal:gateway:subagent:<randomId> to create a fresh
+            // session in the subagent lane owned by the main agent.
+            const sessionKey = `agent:main:internal:gateway:subagent:${message.MessageId ?? randomUUID()}`;
             await gatewayClient.spawnAgent({
               message: rawMessage,
-              sessionKey: "agent:main:main",
+              agentId: "main",
+              sessionKey,
+              lane: "subagent",
               deliver: false,
             });
 
