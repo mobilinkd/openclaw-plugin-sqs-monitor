@@ -78,7 +78,7 @@ export default definePluginEntry({
 
         // Not configured yet — skip service start silently
         if (!hasQueueUrl || !hasRegion) {
-          logger.info("Plugin not configured (no queueUrl/region); skipping start.");
+          logger.info("sqs-monitor not configured (no queueUrl/region); skipping start.");
           return;
         }
 
@@ -89,7 +89,7 @@ export default definePluginEntry({
           ]);
         const gatewayToken = normalizeSecretInput(rawToken);
         if (!gatewayToken) {
-          logger.info("Gateway token not set — skipping start.");
+          logger.info("sqs-monitor gateway token not set; skipping start.");
           return;
         }
 
