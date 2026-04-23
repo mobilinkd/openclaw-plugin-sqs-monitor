@@ -60,6 +60,7 @@ export default definePluginEntry({
     "Polls an AWS SQS queue and spawns subagents to process messages. " +
     "Content-agnostic — knows nothing about SNS envelopes or message schema.",
   register(api: OpenClawPluginApi) {
+    const logger = api.logger;
     api.registerService({
       id: "sqs-monitor",
       start: async (ctx) => {
@@ -77,7 +78,7 @@ export default definePluginEntry({
 
         // Not configured yet — skip service start silently
         if (!hasQueueUrl || !hasRegion) {
-          console.info("[sqs-monitor] Plugin not configured (no queueUrl/region); skipping start.");
+          logger.info("Plugin not configured (no queueUrl/region); skipping start.");
           return;
         }
 
@@ -88,7 +89,7 @@ export default definePluginEntry({
           ]);
         const gatewayToken = normalizeSecretInput(rawToken);
         if (!gatewayToken) {
-          console.info("[sqs-monitor] gateway token not set — skipping start.");
+          logger.info("Gateway token not set — skipping start.");
           return;
         }
 
@@ -96,7 +97,7 @@ export default definePluginEntry({
           process.env as Record<string, string>,
           pluginConfig,
         );
-        const logger = createConsoleLogger(resolved.logLevel);
+        const pluginLogger = createConsoleLogger(resolved.logLevel);
         const sqsClient = createSqsClient({ region: resolved.region });
         const gatewayPort = ctx.config.gateway?.port ?? 18789;
 
@@ -116,7 +117,7 @@ export default definePluginEntry({
             dryRun: resolved.dryRun,
           },
           onAlert: (alert) => {
-            logger.warn(
+            pluginLogger.warn(
               `[sqs-monitor] Alert: ${alert.type} — ${alert.message}`,
               alert.details,
             );
@@ -137,12 +138,13 @@ export default definePluginEntry({
               lane: "subagent",
             });
 
+
             // Delete message from queue after successful spawn
             if (message.ReceiptHandle && !resolved.dryRun) {
               await sqsClient.deleteMessage(resolved.queueUrl, message.ReceiptHandle);
             }
           },
-          logger,
+          logger: pluginLogger,
         });
 
         runningService = service;
