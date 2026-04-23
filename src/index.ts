@@ -19,6 +19,10 @@ function normalizeSecretInput(value: unknown): string {
   return value.replace(/[\r\n\u2028\u2029]+/g, "").trim();
 }
 
+function pickFirstDefined<T>(values: (T | undefined)[]): T | undefined {
+  return values.find((v) => v !== undefined);
+}
+
 function createConsoleLogger(
   level: "debug" | "info" | "warn" | "error",
 ): {
@@ -77,11 +81,15 @@ export default definePluginEntry({
           return;
         }
 
-        const gatewayToken = normalizeSecretInput(ctx.config.gateway?.remote?.token);
+        const rawToken =
+          pickFirstDefined([
+            process.env.OPENCLAW_GATEWAY_TOKEN,
+            ctx.config.gateway?.auth?.token as string | undefined,
+          ]);
+        const gatewayToken = normalizeSecretInput(rawToken);
         if (!gatewayToken) {
-          throw new Error(
-            "[sqs-monitor] gateway.remote.token not configured — cannot spawn subagents",
-          );
+          console.info("[sqs-monitor] gateway token not set — skipping start.");
+          return;
         }
 
         const resolved = resolveConfigFromEnv(
