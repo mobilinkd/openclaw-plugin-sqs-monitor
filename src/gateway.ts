@@ -17,7 +17,7 @@ import WebSocket from "ws";
 
 export interface GatewaySpawnParams {
   message: string;
-  agent?: string;
+  agentId?: string;
   sessionKey?: string;
   channel?: string;
   to?: string;
@@ -75,7 +75,7 @@ export function createGatewayClient(deps: GatewayClientDeps): GatewayClient {
   ): Promise<{ runId?: string }> {
     const {
       message,
-      agent,
+      agentId,
       sessionKey,
       channel,
       to,
