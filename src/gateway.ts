@@ -187,7 +187,7 @@ export function createGatewayClient(deps: GatewayClientDeps): GatewayClient {
           method: "agent",
           params: {
             message,
-            ...(agent ? { agent } : {}),
+            ...(agentId ? { agentId } : {}),
             ...(sessionKey ? { sessionKey } : {}),
             ...(channel ? { channel } : {}),
             ...(to ? { to } : {}),
