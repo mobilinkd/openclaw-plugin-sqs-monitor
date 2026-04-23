@@ -3,7 +3,7 @@
     {
       "name": "sqs-monitor",
       "source": {
-        "kind": "path",
+        "type": "path",
         "path": "."
       }
     }
