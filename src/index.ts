@@ -65,9 +65,10 @@ export default definePluginEntry({
       id: "sqs-monitor",
       start: async (ctx) => {
         // Check if the user has configured this plugin at all before doing any work
-        const pluginConfig = ctx.config.plugins?.entries?.["sqs-monitor"] as
-          | SqsMonitorConfig
+        const pluginEntry = ctx.config.plugins?.entries?.["sqs-monitor"] as
+          | { enabled?: boolean; config?: SqsMonitorConfig }
           | undefined;
+        const pluginConfig = pluginEntry?.config;
         const raw: SqsMonitorConfig = {
           queueUrl:
             process.env.SQS_MONITOR_QUEUE_URL ?? process.env.SQS_QUEUE_URL ?? pluginConfig?.queueUrl,
