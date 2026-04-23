@@ -1,0 +1,11 @@
+{
+  "plugins": [
+    {
+      "name": "sqs-monitor",
+      "source": {
+        "kind": "path",
+        "path": "."
+      }
+    }
+  ]
+}
