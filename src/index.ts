@@ -135,7 +135,6 @@ export default definePluginEntry({
             const rawMessage = JSON.stringify(message);
             await gatewayClient.spawnAgent({
               message: rawMessage,
-              agentId: "subagent",
               deliver: false,
             });
 
