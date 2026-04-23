@@ -17,6 +17,7 @@ import WebSocket from "ws";
 
 export interface GatewaySpawnParams {
   message: string;
+  agent?: string;
   sessionKey?: string;
   channel?: string;
   to?: string;
@@ -74,6 +75,7 @@ export function createGatewayClient(deps: GatewayClientDeps): GatewayClient {
   ): Promise<{ runId?: string }> {
     const {
       message,
+      agent,
       sessionKey,
       channel,
       to,
@@ -82,7 +84,7 @@ export function createGatewayClient(deps: GatewayClientDeps): GatewayClient {
       idempotencyKey = randomUUID(),
       label,
       deliver = false,
-      lane = "subagent",
+      lane,
       thinking,
       timeout,
     } = params;
@@ -185,6 +187,7 @@ export function createGatewayClient(deps: GatewayClientDeps): GatewayClient {
           method: "agent",
           params: {
             message,
+            ...(agent ? { agent } : {}),
             ...(sessionKey ? { sessionKey } : {}),
             ...(channel ? { channel } : {}),
             ...(to ? { to } : {}),
@@ -192,8 +195,8 @@ export function createGatewayClient(deps: GatewayClientDeps): GatewayClient {
             ...(threadId ? { threadId } : {}),
             idempotencyKey,
             ...(label ? { label } : {}),
-            deliver,
-            lane,
+            ...(deliver ? { deliver } : {}),
+            ...(lane ? { lane } : {}),
             ...(thinking ? { thinking } : {}),
             ...(timeout ? { timeout } : {}),
           },
