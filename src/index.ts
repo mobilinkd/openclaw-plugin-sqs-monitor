@@ -59,9 +59,23 @@ export default definePluginEntry({
     api.registerService({
       id: "sqs-monitor",
       start: async (ctx) => {
+        // Check if the user has configured this plugin at all before doing any work
         const pluginConfig = ctx.config.plugins?.entries?.sqsMonitor as
           | SqsMonitorConfig
           | undefined;
+        const raw: SqsMonitorConfig = {
+          queueUrl:
+            process.env.SQS_MONITOR_QUEUE_URL ?? process.env.SQS_QUEUE_URL ?? pluginConfig?.queueUrl,
+          region: process.env.AWS_REGION ?? pluginConfig?.region,
+        };
+        const hasQueueUrl = raw.queueUrl?.trim();
+        const hasRegion = raw.region?.trim();
+
+        // Not configured yet — skip service start silently
+        if (!hasQueueUrl || !hasRegion) {
+          console.info("[sqs-monitor] Plugin not configured (no queueUrl/region); skipping start.");
+          return;
+        }
 
         const gatewayToken = normalizeSecretInput(ctx.config.gateway?.remote?.token);
         if (!gatewayToken) {
